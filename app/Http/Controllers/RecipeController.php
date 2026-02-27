@@ -22,6 +22,8 @@ class RecipeController extends Controller
             // Without this: 1 query for recipes + 1 per recipe for categories = N+1 problem
             // With this:    1 query for recipes + 1 query for ALL their categories = 2 total
             ->with('categories')
+            ->withAvg('ratings', 'stars')
+            ->withCount('ratings')
             ->search($search)
             // Filter by category if selected
             ->when($category, function ($q) use ($category) {
@@ -84,8 +86,12 @@ class RecipeController extends Controller
     public function show(Recipe $recipe)
     {
         $recipe->load('categories'); // Eager load categories for the recipe
+        $recipe->loadAvg('ratings', 'stars');
+        $recipe->loadCount('ratings');
 
         $related = Recipe::with('categories')
+            ->withAvg('ratings', 'stars')
+            ->withCount('ratings')
             ->whereHas('categories', fn($q) => $q->whereIn('id', $recipe->categories->pluck('id'))) // Find recipes with any of the same categories
             ->where('id', '!=', $recipe->id) // Exclude the current recipe
             ->latest()

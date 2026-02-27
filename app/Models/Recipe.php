@@ -56,6 +56,11 @@ class Recipe extends Model
         return $this->belongsToMany(Category::class);
     }
 
+    public function ratings()
+    {
+        return $this->hasMany(\App\Models\Rating::class);
+    }
+
     public function scopeSearch($query, $term)
     {
         if (!$term) {

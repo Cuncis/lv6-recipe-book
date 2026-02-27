@@ -11,8 +11,7 @@
     <div class="bg-white rounded-2xl border border-orange-100 shadow-sm overflow-hidden mb-8">
 
         {{-- Hero image --}}
-        <img src="{{ $recipe->image_url }}" alt="{{ $recipe->title }}"
-             class="w-full h-72 object-cover">
+        <img src="{{ $recipe->image_url }}" alt="{{ $recipe->title }}" class="w-full h-72 object-cover">
 
         <div class="p-8">
 
@@ -20,7 +19,7 @@
             <div class="flex flex-wrap gap-2 mb-4">
                 @foreach ($recipe->categories as $cat)
                     <a href="{{ route('recipes.index', ['category' => $cat->slug]) }}"
-                       class="bg-orange-100 text-orange-700 text-xs font-medium px-3 py-1 rounded-full hover:bg-orange-200 transition">
+                        class="bg-orange-100 text-orange-700 text-xs font-medium px-3 py-1 rounded-full hover:bg-orange-200 transition">
                         {{ $cat->name }}
                     </a>
                 @endforeach
@@ -58,6 +57,52 @@
                         <p>Servings</p>
                     </div>
                 @endif
+
+                {{-- ★ Average rating --}}
+                <div class="text-center">
+                    <div class="flex justify-center text-yellow-400 text-xl leading-none">
+                        @for ($i = 1; $i <= 5; $i++)
+                            {{ $i <= round($recipe->ratings_avg_stars ?? 0) ? '★' : '☆' }}
+                        @endfor
+                    </div>
+                    <p class="mt-0.5">
+                        @if ($recipe->ratings_count > 0)
+                            {{ number_format($recipe->ratings_avg_stars, 1) }} / 5
+                            &middot; {{ $recipe->ratings_count }} {{ $recipe->ratings_count === 1 ? 'rating' : 'ratings' }}
+                        @else
+                            No ratings yet
+                        @endif
+                    </p>
+                </div>
+            </div>
+
+            {{-- ★ Rate this recipe --}}
+            <div class="mb-8 p-4 bg-orange-50 rounded-xl border border-orange-100">
+                <p class="text-sm font-semibold text-gray-700 mb-2">Rate this recipe:</p>
+                <form action="{{ route('ratings.store', $recipe) }}" method="POST" class="flex items-center gap-1">
+                    @csrf
+                    @for ($i = 1; $i <= 5; $i++)
+                        <button type="submit" name="stars" value="{{ $i }}" title="{{ $i }} star{{ $i > 1 ? 's' : '' }}"
+                            class="text-3xl leading-none text-yellow-300 hover:text-yellow-400 transition focus:outline-none">★</button>
+                    @endfor
+                    @if (session('success'))
+                        <span class="ml-3 text-sm text-green-600">{{ session('success') }}</span>
+                    @endif
+                </form>
+                <script>
+                    (function () {
+                        const form = document.currentScript.closest('.bg-orange-50');
+                        const stars = form.querySelectorAll('button[name="stars"]');
+                        stars.forEach((btn, idx) => {
+                            btn.addEventListener('mouseover', () => {
+                                stars.forEach((s, i) => s.style.color = i <= idx ? '#f59e0b' : '#fde68a');
+                            });
+                            btn.addEventListener('mouseout', () => {
+                                stars.forEach(s => s.style.color = '');
+                            });
+                        });
+                    })();
+                </script>
             </div>
 
             {{-- Two-column layout for ingredients + instructions --}}
@@ -82,7 +127,8 @@
                     <div class="space-y-4">
                         @foreach (array_filter(array_map('trim', explode("\n", $recipe->instructions))) as $i => $step)
                             <div class="flex gap-3">
-                                <span class="flex-shrink-0 w-7 h-7 rounded-full bg-orange-100 text-orange-700 text-xs font-bold flex items-center justify-center">
+                                <span
+                                    class="flex-shrink-0 w-7 h-7 rounded-full bg-orange-100 text-orange-700 text-xs font-bold flex items-center justify-center">
                                     {{ $i + 1 }}
                                 </span>
                                 <p class="text-sm text-gray-700 leading-relaxed pt-1">{{ $step }}</p>
@@ -95,13 +141,14 @@
             {{-- Edit / Delete --}}
             <div class="flex gap-3 mt-8 pt-6 border-t border-gray-100">
                 <a href="{{ route('recipes.edit', $recipe) }}"
-                   class="bg-orange-500 hover:bg-orange-600 text-white font-semibold px-5 py-2 rounded-lg text-sm transition">
+                    class="bg-orange-500 hover:bg-orange-600 text-white font-semibold px-5 py-2 rounded-lg text-sm transition">
                     ✏️ Edit Recipe
                 </a>
                 <form action="{{ route('recipes.destroy', $recipe) }}" method="POST"
-                      onsubmit="return confirm('Delete this recipe?')">
+                    onsubmit="return confirm('Delete this recipe?')">
                     @csrf @method('DELETE')
-                    <button class="border border-red-300 text-red-500 hover:bg-red-50 font-semibold px-5 py-2 rounded-lg text-sm transition">
+                    <button
+                        class="border border-red-300 text-red-500 hover:bg-red-50 font-semibold px-5 py-2 rounded-lg text-sm transition">
                         🗑 Delete
                     </button>
                 </form>
@@ -116,9 +163,8 @@
         <div class="grid sm:grid-cols-3 gap-4">
             @foreach ($related as $r)
                 <a href="{{ route('recipes.show', $r) }}"
-                   class="bg-white rounded-xl border border-orange-100 overflow-hidden hover:shadow-md transition">
-                    <img src="{{ $r->image_url }}" alt="{{ $r->title }}"
-                         class="w-full h-32 object-cover">
+                    class="bg-white rounded-xl border border-orange-100 overflow-hidden hover:shadow-md transition">
+                    <img src="{{ $r->image_url }}" alt="{{ $r->title }}" class="w-full h-32 object-cover">
                     <div class="p-3">
                         <p class="font-semibold text-sm truncate">{{ $r->title }}</p>
                         <div class="flex flex-wrap gap-1 mt-1">

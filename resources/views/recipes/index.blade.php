@@ -88,6 +88,20 @@
                         @if ($recipe->servings)
                             <span>🍽 {{ $recipe->servings }} servings</span>
                         @endif
+                        {{-- ★ Average rating badge --}}
+                        @if ($recipe->ratings_count > 0)
+                            <span class="flex items-center gap-0.5 text-yellow-400 font-medium">
+                                @for ($i = 1; $i <= 5; $i++)
+                                    {{ $i <= round($recipe->ratings_avg_stars) ? '★' : '☆' }}
+                                @endfor
+                                <span class="text-gray-400 ml-1 font-normal">
+                                    {{ number_format($recipe->ratings_avg_stars, 1) }}
+                                    ({{ $recipe->ratings_count }})
+                                </span>
+                            </span>
+                        @else
+                            <span class="text-gray-300">☆ No ratings</span>
+                        @endif
                     </div>
 
                     <div class="flex gap-3 text-sm">

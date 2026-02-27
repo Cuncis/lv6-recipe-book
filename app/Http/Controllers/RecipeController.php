@@ -35,7 +35,11 @@ class RecipeController extends Controller
 
         $categories = Category::withCount('recipes')->orderBy('name')->get(); // Get all categories with count of related recipes
 
-        return view('recipes.index', compact('recipes', 'categories', 'search', 'category'));
+        $favoriteIds = auth()->check()
+            ? auth()->user()->favorites()->pluck('recipes.id')->toArray()
+            : session('favorites', []);
+
+        return view('recipes.index', compact('recipes', 'categories', 'search', 'category', 'favoriteIds'));
     }
 
     /**
@@ -98,7 +102,11 @@ class RecipeController extends Controller
             ->take(3) // Limit to 4 related recipes
             ->get();
 
-        return view('recipes.show', compact('recipe', 'related'));
+        $favoriteIds = auth()->check()
+            ? auth()->user()->favorites()->pluck('recipes.id')->toArray()
+            : session('favorites', []);
+
+        return view('recipes.show', compact('recipe', 'related', 'favoriteIds'));
     }
 
     /**

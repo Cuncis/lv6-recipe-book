@@ -25,7 +25,16 @@
                 @endforeach
             </div>
 
-            <h1 class="text-3xl font-bold mb-3">{{ $recipe->title }}</h1>
+            <div class="flex items-start justify-between gap-4 mb-3">
+                <h1 class="text-3xl font-bold">{{ $recipe->title }}</h1>
+                {{-- ❤️ Favorite toggle --}}
+                <form action="{{ route('favorites.toggle', $recipe) }}" method="POST" class="flex-shrink-0 mt-1">
+                    @csrf
+                    <button type="submit"
+                        title="{{ in_array($recipe->id, $favoriteIds) ? 'Remove from favorites' : 'Add to favorites' }}"
+                        class="text-3xl leading-none transition">{{ in_array($recipe->id, $favoriteIds) ? '❤️' : '🤍' }}</button>
+                </form>
+            </div>
 
             @if ($recipe->description)
                 <p class="text-gray-600 text-lg mb-6 leading-relaxed">{{ $recipe->description }}</p>

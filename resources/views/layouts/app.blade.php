@@ -20,6 +20,10 @@
                     class="text-gray-500 hover:text-orange-600 transition">Recipes</a>
                 <a href="{{ route('categories.index') }}"
                     class="text-gray-500 hover:text-orange-600 transition">Categories</a>
+                <a href="{{ route('favorites.index') }}"
+                    class="hover:text-red-500 transition {{ request()->routeIs('favorites.*') ? 'text-red-500 font-semibold' : 'text-gray-500' }}">
+                    ❤️ Favorites
+                </a>
                 <a href="{{ route('recipes.create') }}"
                     class="bg-orange-500 hover:bg-orange-600 text-white font-bold px-4 py-2 rounded-lg transition">
                     + Add Recipe

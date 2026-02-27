@@ -61,6 +61,22 @@ class Recipe extends Model
         return $this->hasMany(\App\Models\Rating::class);
     }
 
+    public function favoritedBy()
+    {
+        return $this->belongsToMany(User::class, 'recipe_user')->withTimestamps();
+    }
+
+    /**
+     * Check if this recipe is favorited by the current user/session.
+     */
+    public function isFavorited(): bool
+    {
+        if (auth()->check()) {
+            return $this->favoritedBy->contains(auth()->id());
+        }
+        return in_array($this->id, session('favorites', []));
+    }
+
     public function scopeSearch($query, $term)
     {
         if (!$term) {

@@ -104,7 +104,14 @@
                         @endif
                     </div>
 
-                    <div class="flex gap-3 text-sm">
+                    <div class="flex gap-3 text-sm items-center">
+                        {{-- ❤️ Favorite toggle --}}
+                        <form action="{{ route('favorites.toggle', $recipe) }}" method="POST">
+                            @csrf
+                            <button type="submit"
+                                title="{{ in_array($recipe->id, $favoriteIds) ? 'Remove from favorites' : 'Add to favorites' }}"
+                                class="transition text-xl leading-none">{{ in_array($recipe->id, $favoriteIds) ? '❤️' : '🤍' }}</button>
+                        </form>
                         <a href="{{ route('recipes.edit', $recipe) }}" class="text-orange-500 hover:underline">Edit</a>
                         <form action="{{ route('recipes.destroy', $recipe) }}" method="POST"
                             onsubmit="return confirm('Delete this recipe?')">

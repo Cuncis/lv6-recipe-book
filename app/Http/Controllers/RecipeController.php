@@ -48,7 +48,8 @@ class RecipeController extends Controller
     public function create()
     {
         $categories = Category::orderBy('name')->get(); // Get all categories for the form
-        return view('recipes.create', compact('categories'));
+        $ingredientSuggestions = $this->ingredientSuggestions();
+        return view('recipes.create', compact('categories', 'ingredientSuggestions'));
     }
 
     /**
@@ -116,8 +117,9 @@ class RecipeController extends Controller
     {
         $recipe->load('categories'); // Eager load categories for the recipe
         $categories = Category::orderBy('name')->get(); // Get all categories for the form
+        $ingredientSuggestions = $this->ingredientSuggestions();
 
-        return view('recipes.edit', compact('recipe', 'categories'));
+        return view('recipes.edit', compact('recipe', 'categories', 'ingredientSuggestions'));
     }
 
     /**
@@ -170,5 +172,19 @@ class RecipeController extends Controller
         $recipe->delete(); // Delete the recipe
 
         return redirect()->route('recipes.index')->with('success', '🗑️ Recipe deleted!');
+    }
+
+    /**
+     * Parse every ingredient line from all recipes into a unique sorted suggestion list.
+     */
+    private function ingredientSuggestions(): array
+    {
+        return Recipe::pluck('ingredients')
+            ->flatMap(fn($text) => array_filter(array_map('trim', explode("\n", $text ?? ''))))
+            ->map(fn($line) => mb_strtolower($line))
+            ->unique()
+            ->sort()
+            ->values()
+            ->toArray();
     }
 }
